@@ -8,13 +8,16 @@
 void insertion_sort(void *base, size_t nmemb, size_t size,
                     int (*compar)(const void *, const void *)) {
   char tmp[size];  /* Variable-length array. */
+  char *basei = (char*)base + size, *basej;
   size_t i, j;
-  for (i = 1; i < nmemb; ++i) {
-    memcpy(tmp, (char*)base + size * i, size);
-    for (j = i; j > 0 && compar(tmp, (char*)base + size * (j - 1)) < 0; --j) {
-      memcpy((char*)base + size * j, (char*)base + size * (j - 1), size);
+  for (i = 1; i < nmemb; ++i, basei += size) {
+    memcpy(tmp, basei, size);
+    for (j = i, basej = basei;
+         j > 0 && compar(tmp, basej - size) < 0; --j,
+         basej -= size) {
+      memcpy(basej, basej - size, size);
     }
-    memcpy((char*)base + size * j, tmp, size);
+    memcpy(basej, tmp, size);
   }
 }
 
