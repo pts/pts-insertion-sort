@@ -7,22 +7,22 @@
  */
 void insertion_sort(void *base, size_t nmemb, size_t size,
                     int (*compar)(const void *, const void *)) {
-  char *basei, *basej, *end;
+  register char *cur;
+  char *savecur, *end;
   char tmp[size];  /* Variable-length array. */
   if (nmemb > 1) {
-    for (basei = (char*)base + size, end = (char*)base + (size * nmemb);
-         basei != end;
-         basei += size) {
-      if (compar(basei, basei - size) < 0) {
-        memcpy(tmp, basei, size);
-        basej = basei - size;
-        memcpy(basei, basej, size);
-        for (;
-             basej != (char*)base && compar(tmp, basej - size) < 0;
-             basej -= size) {
-          memcpy(basej, basej - size, size);
-        }
-        memcpy(basej, tmp, size);
+    for (cur = (char*)base + size, end = (char*)base + (size * nmemb);
+         cur != end;
+         cur += size) {
+      if (compar(cur, cur - size) < 0) {
+        memcpy(tmp, cur, size);
+        savecur = cur;
+        do {
+          memcpy(cur, cur - size, size);
+          cur -= size;
+        } while (cur != (char*)base && compar(tmp, cur - size) < 0);
+        memcpy(cur, tmp, size);
+        cur = savecur;
       }
     }
   }
