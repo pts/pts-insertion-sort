@@ -3,7 +3,7 @@
 #include <string.h>
 
 /* Same signature as qsort(3), but implements the slower insertion sort instead
- * in compact code.
+ * in compact code. It makes no copies if the input is already sorted.
  */
 void insertion_sort(void *base, size_t nmemb, size_t size,
                     int (*compar)(const void *, const void *)) {
