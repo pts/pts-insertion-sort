@@ -13,13 +13,17 @@ void insertion_sort(void *base, size_t nmemb, size_t size,
     for (basei = (char*)base + size, end = (char*)base + (size * nmemb);
          basei != end;
          basei += size) {
-      memcpy(tmp, basei, size);
-      for (basej = basei;
-           basej != (char*)base && compar(tmp, basej - size) < 0;
-           basej -= size) {
-        memcpy(basej, basej - size, size);
+      if (compar(basei, basei - size) < 0) {
+        memcpy(tmp, basei, size);
+        basej = basei - size;
+        memcpy(basei, basej, size);
+        for (;
+             basej != (char*)base && compar(tmp, basej - size) < 0;
+             basej -= size) {
+          memcpy(basej, basej - size, size);
+        }
+        memcpy(basej, tmp, size);
       }
-      memcpy(basej, tmp, size);
     }
   }
 }
