@@ -1,28 +1,40 @@
 /* gcc -W -Wall -Wextra -s -O2 insertion_sort.c && valgrind ./a.out */
 
-#include <string.h>
-
-/* Same signature as qsort(3), but implements the slower insertion sort instead
- * in compact code. It makes no copies if the input is already sorted.
+/* Same signature as qsort(3), but it implements the slower insertion sort
+ * instead in compact code.
+ *
+ * Worst case number of comparisons and swaps: n*(n-1)/2. Best case is when
+ * the input is sorted: n-1 comparisons and 0 swaps.
+ *
+ * It implements swapping of elements by rotating a sequence of elements to
+ * the right by 1 element. It rotates bytewise, so the constant factor is
+ * quite slow.
  */
-void insertion_sort(void *base, size_t nmemb, size_t size,
-                    int (*compar)(const void *, const void *)) {
-  register char *cur;
-  char *savecur, *end;
-  char tmp[size];  /* Variable-length array. */
-  if (nmemb > 1) {
-    for (cur = (char*)base + size, end = (char*)base + (size * nmemb);
+void mini_qsort(void *base, size_t n, size_t size,
+                int (*cmp)(const void*, const void*)) {
+  char *oldcur, *end, *newcur, *mid, tmp, *cur;
+  if (n > 1) {
+    for (cur = (char*)base + size, end = (char*)base + (size * n);
          cur != end;
-         cur += size) {
-      if (compar(cur, cur - size) < 0) {
-        memcpy(tmp, cur, size);
-        savecur = cur;
+         cur = newcur) {
+      newcur = cur + size;
+      if (cmp(cur, cur - size) < 0) {
+        oldcur = cur;
         do {
-          memcpy(cur, cur - size, size);
           cur -= size;
-        } while (cur != (char*)base && compar(tmp, cur - size) < 0);
-        memcpy(cur, tmp, size);
-        cur = savecur;
+        } while (cur != (char*)base && cmp(oldcur, cur - size) < 0);
+        /* memrotate(cur, oldcur, size); */
+        while (oldcur != newcur) {
+          mid = oldcur;
+          tmp = *mid;
+          while (mid != cur) {
+            *mid = *(mid - size);
+            mid -= size;
+          }
+          *mid = tmp;
+          ++oldcur;
+          ++cur;
+        }
       }
     }
   }
